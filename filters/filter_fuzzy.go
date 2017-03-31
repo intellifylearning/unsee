@@ -3,7 +3,7 @@ package filters
 import (
 	"fmt"
 	"regexp"
-	"strconv"
+
 	"github.com/cloudflare/unsee/models"
 	"github.com/cloudflare/unsee/store"
 )
@@ -42,7 +42,8 @@ func (filter *fuzzyFilter) Match(alert *models.UnseeAlert, matches int) bool {
 		}
 
 		if alert.Silenced > 0 {
-			if silence, found := store.SilenceStore.Store[strconv.Itoa(alert.Silenced)]; found {
+			silence := store.Store.GetSilence(alert.Silenced)
+			if silence != nil {
 				if filter.Matcher.Compare(silence.Comment, filter.Value) {
 					filter.Hits++
 					return true

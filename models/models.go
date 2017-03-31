@@ -121,15 +121,15 @@ type UnseeCountMap map[string]map[string]int
 
 // UnseeAlertsResponse is the structure of JSON response UI will use to get alert data
 type UnseeAlertsResponse struct {
-	Status      string                  `json:"status"`
-	Error       string                  `json:"error,omitempty"`
-	Timestamp   string                  `json:"timestamp"`
-	Version     string                  `json:"version"`
-	AlertGroups []UnseeAlertGroup       `json:"groups"`
-	Silences    map[string]UnseeSilence `json:"silences"`
-	Colors      UnseeColorMap           `json:"colors"`
-	Filters     []UnseeFilter           `json:"filters"`
-	Counters    UnseeCountMap           `json:"counters"`
+	Status      string               `json:"status"`
+	Error       string               `json:"error,omitempty"`
+	Timestamp   string               `json:"timestamp"`
+	Version     string               `json:"version"`
+	AlertGroups []UnseeAlertGroup    `json:"groups"`
+	Silences    map[int]UnseeSilence `json:"silences"`
+	Colors      UnseeColorMap        `json:"colors"`
+	Filters     []UnseeFilter        `json:"filters"`
+	Counters    UnseeCountMap        `json:"counters"`
 }
 
 // UnseeAutocomplete is the structure of autocomplete object for filter hints

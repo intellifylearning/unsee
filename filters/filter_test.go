@@ -2,12 +2,12 @@ package filters_test
 
 import (
 	"encoding/json"
+	"testing"
+	"time"
+
 	"github.com/cloudflare/unsee/filters"
 	"github.com/cloudflare/unsee/models"
 	"github.com/cloudflare/unsee/store"
-	"strconv"
-	"testing"
-	"time"
 )
 
 type filterTest struct {
@@ -281,10 +281,11 @@ var tests = []filterTest{
 func TestFilters(t *testing.T) {
 	for _, ft := range tests {
 		if &ft.Silence != nil {
-			store.SilenceStore.Store = map[string]models.UnseeSilence{}
-			store.SilenceStore.Store[strconv.Itoa(ft.Silence.ID)] = ft.Silence
+			store.Store.SetSilences(map[int]models.UnseeSilence{
+				ft.Silence.ID: ft.Silence,
+			})
 		} else {
-			store.SilenceStore.Store = map[string]models.UnseeSilence{}
+			store.Store.SetSilences(map[int]models.UnseeSilence{})
 		}
 		f := filters.NewFilter(ft.Expression)
 		if f == nil {

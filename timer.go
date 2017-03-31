@@ -6,8 +6,6 @@ import (
 	"io"
 	"runtime"
 	"sort"
-	"strconv"
-	"time"
 
 	"github.com/cloudflare/unsee/alertmanager"
 	"github.com/cloudflare/unsee/config"
@@ -47,20 +45,17 @@ func PullFromAlertmanager() {
 		return
 	}
 
-	silenceStore := make(map[string]models.UnseeSilence)
+	silenceStore := make(map[int]models.UnseeSilence)
 	for _, silence := range silenceResponse.Data.Silences {
 		jiraID, jiraLink := transform.DetectJIRAs(&silence)
-		silenceStore[strconv.Itoa(silence.ID)] = models.UnseeSilence{
+		silenceStore[silence.ID] = models.UnseeSilence{
 			AlertmanagerSilence: silence,
 			JiraID:              jiraID,
 			JiraURL:             jiraLink,
 		}
 	}
 
-	store.StoreLock.Lock()
-	store.SilenceStore.Store = silenceStore
-	store.SilenceStore.Timestamp = time.Now()
-	store.StoreLock.Unlock()
+	store.Store.SetSilences(silenceStore)
 
 	alertStore := []models.UnseeAlertGroup{}
 	colorStore := make(models.UnseeColorMap)
@@ -149,16 +144,7 @@ func PullFromAlertmanager() {
 	metricAlerts.With(prometheus.Labels{"silenced": "false"}).Set(counterAlertsUnsilenced)
 	metricAlertGroups.Set(float64(len(alertStore)))
 
-	now := time.Now()
-
-	store.StoreLock.Lock()
-	store.AlertStore.Store = alertStore
-	store.AlertStore.Timestamp = now
-	store.ColorStore.Store = colorStore
-	store.ColorStore.Timestamp = now
-	store.AutocompleteStore.Store = acStore
-	store.AutocompleteStore.Timestamp = now
-	store.StoreLock.Unlock()
+	store.Store.Update(alertStore, colorStore, acStore)
 	log.Info("Pull completed")
 	apiCache.Flush()
 	runtime.GC()
