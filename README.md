@@ -97,6 +97,11 @@ This option can also be set using `-alertmanager.ttl` flag. Example:
 
 Default is `1m`.
 
+Note that maximum value for this option is `15m`.
+UI have a watchdog feature that will track the timestamp of last pull, if UI
+receiving updates for more than 15 minutes it will print an error and
+reload the page.
+
 #### ALERTMANAGER_URI
 
 URI of the Alertmanager instance, unsee will use it to pull alert groups and
